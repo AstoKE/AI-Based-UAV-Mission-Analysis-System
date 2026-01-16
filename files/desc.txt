@@ -1,0 +1,28 @@
+Developed an end-to-end AI software system integrating CNN-based object detection,
+computer vision, NLP-based mission reporting, and big data analysis for UAV decision support systems.
+
+Görüntü
+  ↓
+CNN (Object Detection)
+  ↓
+Feature + Event Analysis
+  ↓
+NLP Report Generator
+  ↓
+Mission Log (Big Data)
+  ↓
+Dashboard / CLI Output
+
+
+Başlıklar: 
+
+| Baykar ilanındaki başlık   | Projede nerede?             |
+| -------------------------- | --------------------------- |
+| CNN ve görüntü tabanlı AI  | Nesne algılama              |
+| Bilgisayarla görü          | Bounding box + analiz       |
+| Makine öğrenmesi           | Olay sınıflandırma          |
+| Derin öğrenme              | CNN mimarileri              |
+| NLP                        | Metinsel görev raporu       |
+| Büyük veri                 | Görev logları & analiz      |
+| Otonomi                    | Rota / karar destek mantığı |
+| Üst düzey yazılım mimarisi | Modüler yapı                |

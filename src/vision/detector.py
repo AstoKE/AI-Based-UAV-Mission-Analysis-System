@@ -15,6 +15,8 @@ class YoloV8Detector:
             source = image_bgr,
             conf=self.conf,
             iou = self.iou,
+            imgsz=1920,
+            classes=[0,1,2,3,5,7],
             verbose=False
         )
 

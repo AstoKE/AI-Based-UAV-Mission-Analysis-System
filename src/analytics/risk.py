@@ -4,7 +4,10 @@ PERSON_CLASSES = {"person"}
 VEHICLE_CLASSES = {"car", "truck", "bus", "motocycle"}
 
 def compute_risk(detections: list[dict]) -> dict:
-    counts = Counter([d["class_name"] for d in detections])
+    ALLOWED_FOR_RISK = {"person", "car", "truck", "bus", "motorcycle", "bicycle"}
+
+    counts = Counter([d["class_name"] for d in detections if d["class_name"] in ALLOWED_FOR_RISK])
+
     persons = sum(counts[c] for c in PERSON_CLASSES if c in counts)
     vehicles = sum(counts[c] for c in VEHICLE_CLASSES if c in counts)
 

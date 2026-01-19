@@ -20,7 +20,7 @@ from nlp.report_generator import generate_report_en
 st.set_page_config(page_title="UAV Mission Analysis", layout="wide")
 
 st.title("AI-Based UAV Mission Analysis System")
-st.caption("YOLOv8 + Risk Asssesment + NLP Mission Report Output + Mission Logging -JSONL-")
+st.caption("YOLOv8 + Risk Asssesment + NLP Mission Report Output + Mission Logging (JSONL)")
 
 # output directories check
 CFG.OUTPUT_ANN_DIR.mkdir(parents=True, exist_ok = True)
@@ -28,8 +28,9 @@ CFG.OUTPUT_REP_DIR.mkdir(parents=True, exist_ok=True)
 CFG.LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 @st.cache_resource
-def load_detector(model_name: str, conf: float, iou: float):
-    return YoloV8Detector(model_name, conf, iou)
+def load_detector(model_name: str, conf: float, iou: float, imgsz: int):
+    return YoloV8Detector(model_name, conf, iou, imgsz=imgsz)
+
 
 def bgr_to_rgb(img_bgr: np.ndarray) -> np.ndarray:
     return cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
@@ -63,7 +64,8 @@ model_choice = st.sidebar.selectbox(
 
 conf =st.sidebar.slider("Confidence Threshold", 0.05, 0.8, float(CFG.CONF_THRES), 0.05)
 iou = st.sidebar.slider("IoU Threshold", 0.1, 0.9,float(CFG.IOU_THRES), 0.05)
-detector = load_detector(model_choice, conf, iou)
+imgsz = st.sidebar.selectbox("Inference Image Size", [640, 960, 1280, 1536, 1920], index=2)
+detector = load_detector(model_choice, conf, iou, imgsz)
 
 st.sidebar.divider()
 st.sidebar.write("Outputs")
@@ -111,7 +113,7 @@ with col1:
             else: 
                 with st.spinner("Running inference..."):
                     mission_id = str(uuid.uuid4())[:8]
-                    detections = detector.detect(img_bgr)
+                    detections, metrics = detector.detect(img_bgr)
 
                     risk_payload = compute_risk(detections)
                     report = generate_report_en(mission_id=mission_id, risk_payload=risk_payload)
@@ -133,18 +135,34 @@ with col1:
                         "iou": iou,
                         "detections": detections, 
                         **risk_payload,
+                        "log_metrics": metrics,
                     }
                     append_jsonl(CFG.LOG_PATH, log_payload)
 
                 st.success("Done!")
 
-                st.write("---Annotated Output---")
+                st.write("Annotated Output")
                 st.image(bgr_to_rgb(annotated), use_container_width=True)
 
-                st.write("---Mission Report---")
+                st.write("Mission Report")
                 st.code(report)
 
-                st.write("---Risk Summary---")
+                st.write("### Quality Metrics")
+
+                m1, m2, m3, m4 = st.columns(4)
+
+                m1.metric("Inference (ms)", f"{metrics['inference_ms']:.0f}")
+                m2.metric("Avg Conf (after)", f"{metrics['avg_conf_after']:.2f}")
+                m3.metric(
+                    "Detections kept",
+                    f"{metrics['detections_after']} / {metrics['detections_before']}"
+                )
+                m4.metric(
+                    "Duplicate ratio",
+                    f"{metrics['duplicate_ratio']*100:.1f}%"
+                )
+
+                st.write("Risk Summary")
                 st.json({
                     "risk_level": risk_payload["risk_level"],
                     "risk_score": risk_payload["risk_score"],

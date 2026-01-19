@@ -26,7 +26,7 @@ def main():
     detector = YoloV8Detector(CFG.YOLO_MODEL, CFG.CONF_THRES, CFG.IOU_THRES)
 
     mission_id = str(uuid.uuid4())[:8]
-    detections = detector.detect(image)
+    detections, metrics = detector.detect(image)
 
     risk_payload = compute_risk(detections)
     report = generate_report_en(mission_id=mission_id, risk_payload=risk_payload)
@@ -44,6 +44,7 @@ def main():
         "scenario": CFG.SCENARIO_NAME,
         "input_image": str(img_path),
         "detections": detections,
+        "log_metrics": metrics,
         **risk_payload
     }
     append_jsonl(CFG.LOG_PATH, log_payload)
@@ -52,6 +53,7 @@ def main():
     print(f"Annotated image: {out_img}")
     print(f"Report: {out_rep}")
     print(f"Log appended: {CFG.LOG_PATH}")
+    print("Metrics:", metrics)
 
 if __name__ == "__main__":
     main()

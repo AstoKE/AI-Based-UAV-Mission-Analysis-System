@@ -4,4 +4,5 @@ __pycache__/
 .env
 data/models/
 assets/outputs/
+assets/samples/
 .DS_Store

@@ -16,6 +16,7 @@ from vision.annotator import draw_detections
 from analytics.risk import compute_risk
 from analytics.logger import append_jsonl
 from nlp.report_generator import generate_report_en
+from video.video_analyzer import analyze_video
 
 st.set_page_config(page_title="UAV Mission Analysis", layout="wide")
 
@@ -170,6 +171,62 @@ with col1:
                 })
 
                 st.caption(f"Saved: {out_img.name} and {out_rep.name}")
+
+    st.sidebar.divider()
+    st.sidebar.subheader("Video Demo")
+    fps_sample = st.sidebar.selectbox("Sample (frames/sec)", [1, 2, 3], index=0)
+    max_seconds = st.sidebar.selectbox("Max processing (sec)", [10, 20, 30], index=1)
+    
+    st.divider()
+st.header("Video Demo")
+
+video_file = st.file_uploader(
+    "Upload a short UAV video (mp4 / mov / avi)",
+    type=["mp4", "mov", "avi"],
+    key="video_uploader"
+)
+
+run_video_btn = st.button("Run Video Analysis", width="stretch")
+
+if run_video_btn:
+    if video_file is None:
+        st.error("Please upload a video first.")
+    else:
+        out_dir = Path("assets/outputs/video")
+        out_dir.mkdir(parents=True, exist_ok=True)
+
+        tmp_path = out_dir / f"uploaded_{video_file.name}"
+        tmp_path.write_bytes(video_file.read())
+
+        with st.spinner("Analyzing video (sampling frames)..."):
+            out_video_path, last_payload, vsummary, last_report = analyze_video(
+                video_path=str(tmp_path),
+                detector=detector,
+                fps_sample=int(fps_sample),
+                max_seconds=int(max_seconds),
+                report_every_sec=1,
+            )
+
+        st.success("Video analysis completed!")
+        st.video(out_video_path)
+
+        st.subheader("Video Summary Metrics")
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("Frames total", vsummary.frames_total)
+        c2.metric("Frames analyzed", vsummary.frames_analyzed)
+        c3.metric("Avg inference (ms)", f"{vsummary.avg_inference_ms:.0f}")
+        c4.metric("Avg conf (after)", f"{vsummary.avg_conf_after:.2f}")
+
+        st.subheader("Last Risk Snapshot")
+        st.json({
+            "risk_level": last_payload.get("risk_level"),
+            "risk_score": last_payload.get("risk_score"),
+            "counts": last_payload.get("counts"),
+        })
+
+        if last_report:
+            st.subheader("Last Generated Report")
+            st.code(last_report)
 
     st.divider()
     st.subheader("3) Mission Log (JSONL)")

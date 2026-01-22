@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import cv2
 import sys
+import base64
 
 # make src importable
 sys.path.append(str(Path(__file__).resolve().parents[1] / "src"))
@@ -72,6 +73,40 @@ def sample_frames(video_path: str, n: int = 6) -> list[tuple[int, np.ndarray]]:
     cap.release()
     return frames
 
+def show_video_safely(video_path: Path):
+    
+    if not video_path.exists():
+        st.error("Video file not found.")
+        return
+
+    if video_path.stat().st_size == 0:
+        st.error("Video file is empty.")
+        return
+
+    video_bytes = video_path.read_bytes()
+
+    st.video(video_bytes)
+
+    # Download button
+    st.download_button(
+        "Download annotated video",
+        data=video_bytes,
+        file_name=video_path.name,
+        mime="video/mp4",
+        use_container_width=True,
+    )
+
+def show_video_fixed_size(video_path, width=640, height=360):
+    video_bytes = Path(video_path).read_bytes()
+    video_b64 = base64.b64encode(video_bytes).decode()
+
+    html = f"""
+    <video width="{width}" height="{height}" controls>
+        <source src="data:video/mp4;base64,{video_b64}" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    """
+    st.markdown(html, unsafe_allow_html=True)
 
 # sidebar
 st.sidebar.header("Settings")
@@ -233,29 +268,43 @@ if run_video_btn:
         if not p.exists() or p.stat().st_size == 0:
             st.error("Output video file not found or empty.")
         else:
-            st.subheader("Annotated Video Output")
+            
             
             p = Path(out_video_path)
-            st.write("Output video:", str(p))  # debug
+            st.subheader("Annotated Video Output")
 
-            if p.exists() and p.stat().st_size > 0:
-                video_bytes = p.read_bytes()
+            left, right = st.columns([2, 1], gap="large")  # 
 
-                # mp4 ise browser oynatır
-                if p.suffix.lower() == ".mp4":
-                    st.video(video_bytes)
-                else:
-                    st.warning("Browser preview supports mp4 only. Please download the video.")
-
-                st.download_button(
-                    "Download annotated video",
-                    data=video_bytes,
-                    file_name=p.name,
-                    mime="video/mp4" if p.suffix.lower() == ".mp4" else "video/x-msvideo",
-                    use_container_width=True,
+            # with left:
+            #   show_video_safely(p)   
+            with left:
+                show_video_fixed_size(
+                    p,
+                    width=1280,
+                    height=1095   # 16:9 oran
                 )
-            else:
-                st.error("Output video file not found or empty.")
+
+            with right:
+                st.subheader("Video Summary")
+
+                st.metric("Frames total", int(getattr(vsummary, "frames_total", 0)))
+                st.metric("Frames analyzed", int(getattr(vsummary, "frames_analyzed", 0)))
+                st.metric("Avg inference (ms)", f"{float(getattr(vsummary, 'avg_inference_ms', 0.0)):.0f}")
+                st.metric("Avg conf (after)", f"{float(getattr(vsummary, 'avg_conf_after', 0.0)):.2f}")
+
+                st.divider()
+                st.caption("Last Risk Snapshot")
+                st.json({
+                    "risk_level": last_payload.get("risk_level"),
+                    "risk_score": last_payload.get("risk_score"),
+                    "counts": last_payload.get("counts"),
+                })
+
+                if last_report:
+                    st.divider()
+                    st.caption("Last Report")
+                    st.code(last_report, language="text")
+            
 
 
         st.subheader("Frame Previews (sampled from output video)")

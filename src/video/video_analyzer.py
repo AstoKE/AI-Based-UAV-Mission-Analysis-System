@@ -67,7 +67,10 @@ def analyze_video(
         raise ValueError("Could not open video file.")
 
     fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
-    step = max(1, int(round(fps / max(1, fps_sample))))
+    if fps_sample <= 0:
+        step = 1
+    else:
+        step = max(1, int(round(fps / fps_sample)))
 
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH) or 1920)
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT) or 1080)
@@ -95,6 +98,8 @@ def analyze_video(
     start_wall = time.time()
     last_report_wall = 0.0
     idx = 0
+    last_dets = []
+    have_last = False
 
     while True:
         ok, frame = cap.read()
@@ -106,6 +111,7 @@ def analyze_video(
         # stop after max_seconds
         if time.time() - start_wall > max_seconds:
             break
+
 
         if idx % step == 0:
             dets, metrics = detector.detect(frame)
@@ -122,9 +128,13 @@ def analyze_video(
                 last_report = generate_report_en(mission_id=mission_id, risk_payload=risk_payload)
                 last_report_wall = now
 
-            ann = draw_detections(frame, dets)
-            writer.write(ann)
+            last_dets = dets
+            have_last = True
             frames_analyzed += 1
+
+        if have_last:
+            ann = draw_detections(frame, last_dets)
+            writer.write(ann)
         else:
             writer.write(frame)
 

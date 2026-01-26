@@ -131,8 +131,8 @@ st.sidebar.write(f"Logs: {CFG.LOG_PATH}")
 
 st.sidebar.divider()
 st.sidebar.subheader("Video Demo Settings")
-fps_sample = st.sidebar.selectbox("Sample (frames/sec)", [1, 2, 3], index=0)
-max_seconds = st.sidebar.selectbox("Max processing (sec)", [10, 20, 30], index=1)
+fps_sample = st.sidebar.selectbox("Sample (frames/sec)", [0,1, 2, 3], index=0)
+max_seconds = st.sidebar.selectbox("Max processing (sec)", [10, 20, 30, 40, 50, 60], index=1)
 report_every_sec = st.sidebar.selectbox("Report every (sec)", [1, 2, 3], index=0)
 
 
@@ -280,8 +280,8 @@ if run_video_btn:
             with left:
                 show_video_fixed_size(
                     p,
-                    width=1280,
-                    height=1095   # 16:9 oran
+                    width=1200,
+                    height=1080   # 16:9 oran
                 )
 
             with right:

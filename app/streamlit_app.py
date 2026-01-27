@@ -132,7 +132,7 @@ st.sidebar.write(f"Logs: {CFG.LOG_PATH}")
 st.sidebar.divider()
 st.sidebar.subheader("Video Demo Settings")
 fps_sample = st.sidebar.selectbox("Sample (frames/sec)", [0,1, 2, 3], index=0)
-max_seconds = st.sidebar.selectbox("Max processing (sec)", [10, 20, 30, 40, 50, 60], index=1)
+max_seconds = st.sidebar.selectbox("Max processing (sec)", [10, 20, 30, 40, 50, 60], index=3)
 report_every_sec = st.sidebar.selectbox("Report every (sec)", [1, 2, 3], index=0)
 
 
@@ -162,7 +162,7 @@ with col1:
         img_name = uploaded.name
 
     if img_bgr is not None:
-        st.image(bgr_to_rgb(img_bgr), caption=f"Input: {img_name}", use_container_width=True)
+        st.image(bgr_to_rgb(img_bgr), caption=f"Input: {img_name}", width="stretch")
 
 with col2:
     st.subheader("2) Run Analysis")
@@ -203,7 +203,7 @@ with col2:
             st.success("Done!")
 
             st.write("### Annotated Output")
-            st.image(bgr_to_rgb(annotated), use_container_width=True)
+            st.image(bgr_to_rgb(annotated), width="stretch")
 
             st.write("### Mission Report")
             st.code(report)
@@ -316,7 +316,7 @@ if run_video_btn:
             cols = st.columns(3)
             for i, (fi, img_rgb) in enumerate(frames):
                 with cols[i % 3]:
-                    st.image(img_rgb, caption=f"Frame #{fi}", use_container_width=True)
+                    st.image(img_rgb, caption=f"Frame #{fi}", width="stretch")
 
         st.subheader("Video Summary Metrics")
         c1, c2, c3, c4 = st.columns(4)
@@ -370,7 +370,7 @@ else:
 
     df = pd.DataFrame(flat)
 
-    st.dataframe(df.sort_values(by="logged_at_utc", ascending=False), use_container_width=True)
+    st.dataframe(df.sort_values(by="logged_at_utc", ascending=False), width="stretch")
 
     st.write("### Quick Analytics")
     a1, a2, a3 = st.columns(3)
@@ -381,7 +381,14 @@ else:
     st.write("### Risk Score Trend")
     try:
         df_plot = df.copy()
-        df_plot["logged_at_utc"] = pd.to_datetime(df_plot["logged_at_utc"], errors="coerce")
+        df_plot["logged_at_utc"] = (
+            pd.to_datetime(
+                df_plot["logged_at_utc"].astype(str).str.replace("Z", "", regex=False),
+                format="%Y-%m-%dT%H:%M:%S.%f%z",
+                errors="coerce",
+                utc=True,
+            )
+        )
         df_plot = df_plot.dropna(subset=["logged_at_utc", "risk_score"]).sort_values("logged_at_utc")
         st.line_chart(df_plot.set_index("logged_at_utc")["risk_score"])
     except Exception:

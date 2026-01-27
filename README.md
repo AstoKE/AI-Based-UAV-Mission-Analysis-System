@@ -1,56 +1,159 @@
-# AI-Based UAV Mission Analysis System
+AI-Based UAV Mission Analysis System
+An end-to-end computer vision–based UAV mission analysis platform that performs real-time object detection, risk assessment, and automated mission reporting on images and videos using deep learning.
+This project simulates how an autonomous or semi-autonomous UAV can analyze its surroundings, assess operational risk, and generate mission-level intelligence outputs.
 
-End-to-end UAV imagery analysis pipeline integrating:
-- **YOLOv8** object detection (computer vision / CNN)
-- **Risk assessment** (rule-based decision layer)
-- **NLP mission report** generation (operational-style output)
-- **Mission logging** in **JSONL** format + quick analytics dashboard (Streamlit)
+Overview:
 
-## Key Features
-- Upload UAV image → run detection → visualize annotated output
-- Perimeter security scenario: counts of **person** and **vehicles**
-- Normalized risk scoring to avoid saturation in crowded scenes
-- JSONL mission logs with quick analytics (trend + table)
+Unmanned Aerial Vehicles (UAVs) are increasingly used in surveillance, perimeter security, and urban monitoring.
+This system demonstrates a full onboard-style vision pipeline, combining:
 
-## Architecture
-Image
-↓
-YOLOv8 Detector (CNN)
-↓
-Post-process (filters / dedup)
-↓
-Risk Assessment (decision layer)
-↓
-NLP Mission Report (TR/EN)
-↓
-Mission Log (JSONL) + Streamlit Dashboard
+-Deep learning–based object detection (YOLOv8
+-Real-time video analysis
+-Dynamic risk scoring
+-Automated natural language mission reports
+-Mission-level logging and analytics
 
-r
-Kodu kopyala
+The application is built with Streamlit and designed to be both interactive and extensible.
 
-## Setup
-```bash
+Key Capabilities:
+
+-Image-Based Analysis
+-Detects objects such as persons, cars, buses, trucks, motorcycles
+-Draws bounding boxes with confidence scores
+-Computes risk level based on detected entities
+-Generates a textual mission report
+-Logs mission data in structured JSONL format
+-Video-Based Analysis
+-Processes UAV videos frame by frame
+-Supports configurable FPS sampling or full-frame analysis
+-Maintains persistent bounding boxes across frames
+
+Displays live mission overlays:
+
+Risk level
+
+Risk score
+
+FPS
+
+Inference time
+
+Generates annotated, browser-playable videos
+
+Produces periodic mission reports during video playback
+
+Risk Assessment
+
+Object-type–weighted scoring
+
+Aggregated risk level classification (LOW / MEDIUM / HIGH)
+
+Snapshot of latest operational risk state
+
+Mission Analytics
+
+Historical mission logs
+
+Risk score trends over time
+
+Detection statistics across missions
+
+System Architecture:
+
+Input (Image / Video)
+        ↓
+YOLOv8 Object Detection
+        ↓
+Bounding Box Annotation
+        ↓
+Risk Scoring Engine
+        ↓
+Mission Report Generator (NLP)
+        ↓
+Video / Image Output + Logs
+
+User Interface:
+
+The Streamlit-based interface allows users to:
+
+-Upload images or videos
+-Configure detection thresholds and sampling rate
+-View annotated outputs directly in the browser
+-Inspect mission summaries and reports
+-Explore mission history and analytics
+-The UI dynamically adapts to different video aspect ratios to ensure consistent visualization.
+
+Setup & Installation:
+
+1. Clone the Repository
+git clone https://github.com/your-username/ai-uav-mission-analysis.git
+cd ai-uav-mission-analysis
+
+2. Create a Virtual Environment
+
+Windows-->
+
 python -m venv .venv
-# Windows:
-.venv\Scripts\Activate
+.venv\Scripts\activate
+
+macOS / Linux-->
+
+python3 -m venv .venv
+source .venv/bin/activate
+
+3. Install Dependencies
 pip install -r requirements.txt
-Run (CLI)
-bash
-Kodu kopyala
-python src/run_inference.py --image assets/samples/perimeter_01.jpg
-Outputs:
 
-Annotated image → assets/outputs/annotated/
+4. Install FFmpeg (Required for Video Output)
 
-Mission report → assets/outputs/reports/
+FFmpeg is required to generate browser-compatible annotated videos.
 
-Logs → data/logs/mission_logs.jsonl
+Windows-->
+Download from: https://www.gyan.dev/ffmpeg/builds/
+Add ffmpeg/bin to your system PATH
+Verify:
+ffmpeg -version
 
-Run (Streamlit Demo)
-bash
-Kodu kopyala
+macOS-->
+brew install ffmpeg
+
+Linux-->
+sudo apt install ffmpeg
+
+5. Run the Application
 streamlit run app/streamlit_app.py
-Notes
-Higher resolution (e.g., imgsz=1536/1920) improves small-object detection in crowded UAV scenes.
 
-Class-agnostic NMS and post-processing reduce duplicate detections.
+Then open:
+
+http://localhost:8501
+
+Project Structure:
+
+app/
+ └── streamlit_app.py        # Main UI
+
+src/
+ ├── vision/                # Detection & annotation
+ ├── video/                 # Video processing pipeline
+ ├── analytics/             # Risk logic & logging
+ └── nlp/                   # Mission report generation
+
+assets/
+ ├── samples/               # Sample images
+ └── outputs/               # Generated outputs
+
+Tested Environment
+
+Python 3.9+
+
+Windows 10 / 11
+
+macOS (Intel & Apple Silicon)
+
+Chrome / Edge (recommended for video playback)
+
+
+
+Author : Şükrü Enes Tuğaç
+
+Developed as a full-stack AI vision project combining computer vision, analytics, and NLP for UAV mission intelligence.

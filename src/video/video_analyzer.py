@@ -10,6 +10,7 @@ import subprocess
 from analytics.risk import compute_risk
 from nlp.report_generator import generate_report_en
 from vision.annotator import draw_detections
+from vision.annotator import draw_hud
 
 
 @dataclass
@@ -77,7 +78,6 @@ def analyze_video(
 
     in_path = Path(video_path)
 
-    # 1) write temporary AVI via OpenCV (fast + stable)
     tmp_avi_path = str(in_path.with_suffix("").as_posix() + "_annotated_tmp.avi")
     fourcc = cv2.VideoWriter_fourcc(*"MJPG")
     writer = cv2.VideoWriter(tmp_avi_path, fourcc, fps, (width, height))
@@ -94,7 +94,11 @@ def analyze_video(
         "recommended_action": "Routine monitoring recommended.",
     }
     last_report = ""
-
+    last_risk = {
+        "risk_level": "LOW",
+        "risk_score": 0,
+    }
+    last_inf_ms = 0.0
     start_wall = time.time()
     last_report_wall = 0.0
     idx = 0
@@ -116,6 +120,14 @@ def analyze_video(
         if idx % step == 0:
             dets, metrics = detector.detect(frame)
 
+            last_inf_ms = metrics.get("inference_ms", 0.0)
+
+            risk_payload = compute_risk(dets)
+            last_risk = {
+                "risk_level": risk_payload.get("risk_level", "LOW"),
+                "risk_score": risk_payload.get("risk_score", 0),
+            }
+
             inf_ms_list.append(metrics.get("inference_ms", 0.0))
             conf_list.append(metrics.get("avg_conf_after", 0.0))
 
@@ -134,6 +146,15 @@ def analyze_video(
 
         if have_last:
             ann = draw_detections(frame, last_dets)
+
+            ann = draw_hud(
+                ann,
+                risk_level=last_risk.get("risk_level", "LOW"),
+                risk_score=last_risk.get("risk_score", 0),
+                inference_ms=last_inf_ms,
+                fps=fps,
+            )
+
             writer.write(ann)
         else:
             writer.write(frame)

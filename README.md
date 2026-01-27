@@ -86,7 +86,7 @@ The Streamlit-based interface allows users to:
 Setup & Installation:
 
 1. Clone the Repository
-git clone https://github.com/your-username/ai-uav-mission-analysis.git
+git clone [https://github.com/your-username/ai-uav-mission-analysis.git](https://github.com/AstoKE/AI-Based-UAV-Mission-Analysis-System?tab=readme-ov-file)
 cd ai-uav-mission-analysis
 
 2. Create a Virtual Environment

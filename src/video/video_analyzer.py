@@ -49,8 +49,11 @@ def _transcode_to_mp4(input_path: str, output_path: str) -> None:
             "-c:v", "libx264",
             "-pix_fmt", "yuv420p",
             "-movflags", "+faststart",
+            "-loglevel", "error",
             output_path,
         ],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
         check=True,
     )
 

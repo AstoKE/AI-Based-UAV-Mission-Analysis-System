@@ -1,3 +1,8 @@
+
+![ee953ec8479899366fe512230b919032c687808fecdcd303983ff3dc](https://github.com/user-attachments/assets/8f4d7150-6906-42e6-aeaa-13dd7b52502d)
+
+<img width="725" height="651" alt="Ekran görüntüsü 2026-01-27 223524" src="https://github.com/user-attachments/assets/f682277a-9598-458b-a119-c5f9d11af53d" />
+
 AI-Based UAV Mission Analysis System
 An end-to-end computer vision–based UAV mission analysis platform that performs real-time object detection, risk assessment, and automated mission reporting on images and videos using deep learning.
 This project simulates how an autonomous or semi-autonomous UAV can analyze its surroundings, assess operational risk, and generate mission-level intelligence outputs.
@@ -130,17 +135,17 @@ http://localhost:8501
 Project Structure:
 
 app/
- └── streamlit_app.py        # Main UI
+        streamlit_app.py        # Main UI
 
 src/
- ├── vision/                # Detection & annotation
- ├── video/                 # Video processing pipeline
- ├── analytics/             # Risk logic & logging
- └── nlp/                   # Mission report generation
+        vision/                # Detection & annotation
+        video/                 # Video processing pipeline
+        analytics/             # Risk logic & logging
+        nlp/                   # Mission report generation
 
 assets/
- ├── samples/               # Sample images
- └── outputs/               # Generated outputs
+        samples/               # Sample images
+        outputs/               # Generated outputs
 
 Tested Environment
 

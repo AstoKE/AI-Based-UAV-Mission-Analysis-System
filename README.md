@@ -135,17 +135,17 @@ http://localhost:8501
 Project Structure:
 
 app/
- └── streamlit_app.py        # Main UI
+        streamlit_app.py        # Main UI
 
 src/
- ├── vision/                # Detection & annotation
- ├── video/                 # Video processing pipeline
- ├── analytics/             # Risk logic & logging
- └── nlp/                   # Mission report generation
+        vision/                # Detection & annotation
+        video/                 # Video processing pipeline
+        analytics/             # Risk logic & logging
+        nlp/                   # Mission report generation
 
 assets/
- ├── samples/               # Sample images
- └── outputs/               # Generated outputs
+        samples/               # Sample images
+        outputs/               # Generated outputs
 
 Tested Environment
 

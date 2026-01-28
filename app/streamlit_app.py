@@ -7,6 +7,7 @@ import pandas as pd
 import cv2
 import sys
 import base64
+import os
 
 # make src importable
 sys.path.append(str(Path(__file__).resolve().parents[1] / "src"))
@@ -132,7 +133,7 @@ st.sidebar.write(f"Logs: {CFG.LOG_PATH}")
 st.sidebar.divider()
 st.sidebar.subheader("Video Demo Settings")
 fps_sample = st.sidebar.selectbox("Sample (frames/sec)", [0,1, 2, 3], index=0)
-max_seconds = st.sidebar.selectbox("Max processing (sec)", [10, 20, 30, 40, 50, 60], index=3)
+max_seconds = st.sidebar.selectbox("Max processing (sec)", [10, 20, 30, 40, 50, 60, 240], index=3)
 report_every_sec = st.sidebar.selectbox("Report every (sec)", [1, 2, 3], index=0)
 
 
@@ -283,7 +284,13 @@ if run_video_btn:
                     width=1200,
                     height=1080   # 16:9 oran
                 )
-
+            with open(out_video_path, "rb") as f:
+                st.download_button(
+                    label="Download analyzed video",
+                    data=f,
+                    file_name=os.path.basename(out_video_path),
+                    mime="video/mp4"
+                )
             with right:
                 st.subheader("Video Summary")
 
